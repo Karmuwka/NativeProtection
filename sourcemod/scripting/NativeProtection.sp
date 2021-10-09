@@ -120,6 +120,7 @@ public void OnPluginStart(){
     SpawnModelColoringTeam      = CreateConVar("prot_after_coloring_team", "1", "Включить окрашивание игроков по командам / Enable team-color");
 	
 	AutoExecConfig(true, "native_protection");
+    LoadTranslations("NativeProtection.phrases");
 	
 	RenderOffs					= FindSendPropInfo("CBasePlayer", "m_clrRender");
     
@@ -150,7 +151,7 @@ public bool ApplyProtection(client, float time){
         g_ClientState[client] = true;
         CreateTimer(time, TimerRemoveProtection, client);
         if(GetConVarInt(SpawnProtectionNotify) > 0)
-            CPrintToChat(client, "{lightgreen}[KNP Protection] {default} Вы под защитой от урона на {lightgreen}%i {default}секунд", RoundToNearest(time)); 
+            CPrintToChat(client, "{lightgreen}[KNP Protection] %t", "PROTECTION_START", RoundToNearest(time)); 
         g_ClientState[client] = true;
         return true;
     }
@@ -172,7 +173,7 @@ public void RemoveProtection(int client){
         }
         set_rendering(client, FxDistort, Color[0], Color[1], Color[2], RENDER_TRANSADD, Color[3]);
         if(GetConVarInt(SpawnProtectionNotify) > 0)
-            CPrintToChat(client, "{lightgreen}[KNP Protection] {default} Защита урона отключена{lightgreen}..");
+            CPrintToChat(client, "{lightgreen}[KNP Protection] %t", "PROTECTION_END");
     }
     g_ClientState[client] = false;
 }

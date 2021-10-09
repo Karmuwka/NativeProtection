@@ -1,0 +1,14 @@
+"Phrases"
+{
+    "PROTECTION_START"
+    {
+        "#format" "{1:i}"
+        "en" "You are protected for {green}{1}{default} seconds..."
+        "ru" "Вы под защитой на {green}{1}{default} секунд..."
+    }
+    "PROTECTION_END"
+    {
+        "en" "{red}Protection is over!"
+        "ru" "{red}Защита закончилась!"
+    }
+}
