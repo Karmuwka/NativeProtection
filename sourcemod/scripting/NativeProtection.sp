@@ -89,7 +89,7 @@ public int Native_SetClientProtectionState(Handle hPlugin, int iNumParams){
             if(!g_ClientState[client]){
                 if(time <= 0)
                     SetFailState("Time of protection is smaller or equal 0");
-                ApplyProtection(client, time);
+                ApplyProtection(client, time, true);
             }
         }else{
             if(g_ClientState[client])
@@ -114,9 +114,9 @@ public Plugin:myinfo = {
 };
 
 public void OnPluginStart(){	
-	SpawnProtectionTime			= CreateConVar("prot_spawn_protection_time", "5", "Время защиты при возрождении / Time of spawn protection");
+	SpawnProtectionTime			= CreateConVar("prot_spawn_protection_time", "8", "Время защиты при возрождении / Time of spawn protection");
 	SpawnProtectionNotify		= CreateConVar("prot_notify", "1", "Включить уведомления для игрока / Notify player about protection");
-	SpawnProtectionColor		= CreateConVar("prot_color", "0 255 0 120", "Цвет моделек игрока во воремя защиты / Player`s model color (RGBA)");
+	SpawnProtectionColor		= CreateConVar("prot_color", "0 255 0 0", "Цвет моделек игрока во воремя защиты / Player`s model color (RGBA)");
     SpawnModelColoringTeam      = CreateConVar("prot_after_coloring_team", "1", "Включить окрашивание игроков по командам / Enable team-color");
 	
 	AutoExecConfig(true, "native_protection");
@@ -131,23 +131,23 @@ public Action OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcas
 {
 	int client 	= GetClientOfUserId(GetEventInt(event, "userid"));
     float Time = float(GetConVarInt(SpawnProtectionTime));
-    if(time == float(0.0) || time < float(0.0)) return Plugin_Continue;
-    ApplyProtection(client, Time)
+    if(Time == float(0.0) || Time < float(0.0)) return Plugin_Continue;
+    ApplyProtection(client, Time, false)
     return Plugin_Continue;
 }
-public bool ApplyProtection(client, float time){
+public bool ApplyProtection(client, float time, bool isClientVisible){
     if(time == float(0.0) || time < float(0.0)) return true;
     int Team = GetClientTeam(client);
     if(IsPlayerAlive(client) && (Team != TeamSpec) && !g_ClientState[client] && correctPlayer(client))
     {
         char SzColor[32];
-        
         char SetColors[4][4];
+
         GetConVarString(SpawnProtectionColor, SzColor, sizeof(SzColor));
         ExplodeString(SzColor, " ", SetColors, 4, 4);
             
         SetEntProp(client, Prop_Data, "m_takedamage", 0, 1);
-        set_rendering(client, FxDistort, StringToInt(SetColors[0]), StringToInt(SetColors[1]), StringToInt(SetColors[2]), RENDER_TRANSADD, StringToInt(SetColors[3]));
+        set_rendering(client, FxDistort, StringToInt(SetColors[0]), StringToInt(SetColors[1]), StringToInt(SetColors[2]), (isClientVisible) ? Normal : None, StringToInt(SetColors[3]));
         g_ClientState[client] = true;
         CreateTimer(time, TimerRemoveProtection, client);
         if(GetConVarInt(SpawnProtectionNotify) > 0)
