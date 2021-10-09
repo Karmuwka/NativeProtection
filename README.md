@@ -24,7 +24,7 @@ SpawnProtection & Team coloring with native
 
 # Natives
 **`bool SP_GetClientProtectionState(int client)`**
-> _Return true if player already is protectedб false in any other case_
+> _Return true if player already is protected false in any other case_
 > - int client - Player's index.
 
 **`void SP_SetClientProtectionState(int client, bool state, float time = 0.0)`**
