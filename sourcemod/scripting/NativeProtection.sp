@@ -131,12 +131,12 @@ public Action OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcas
 {
 	int client 	= GetClientOfUserId(GetEventInt(event, "userid"));
     float Time = float(GetConVarInt(SpawnProtectionTime));
-    if(Time == float(0.0) && Time < float(0.0)) return Plugin_Continue;
+    if(time == float(0.0) || time < float(0.0)) return Plugin_Continue;
     ApplyProtection(client, Time)
     return Plugin_Continue;
 }
 public bool ApplyProtection(client, float time){
-    if(time == float(0.0) && time < float(0.0)) return true;
+    if(time == float(0.0) || time < float(0.0)) return true;
     int Team = GetClientTeam(client);
     if(IsPlayerAlive(client) && (Team != TeamSpec) && !g_ClientState[client] && correctPlayer(client))
     {
