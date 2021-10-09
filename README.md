@@ -31,3 +31,4 @@ SpawnProtection & Team coloring with native
 > _Set/remove protection from player_
 > - int client - Player's index.
 > - bool state - True - set protection, False - remove
+> - float time - Time of protection, set 0.0 if state = false. Default - 0.0
