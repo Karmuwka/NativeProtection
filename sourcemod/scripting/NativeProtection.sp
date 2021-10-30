@@ -76,14 +76,24 @@ public void OnPluginStart(){
 	RenderOffs					= FindSendPropInfo("CBasePlayer", "m_clrRender");
     
 	HookEvent("player_spawn", OnPlayerSpawn);
+    HookEvent("round_prestart", OnRoundStart);
+}
+
+public Action OnRoundStart(Handle:event, const String:name[], bool:dontBroadcast){
+    for(int i = 0; i < MAXPLAYERS; i++){
+        g_ClientState[i] = false;
+    }
 }
 
 public Action OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	int client 	= GetClientOfUserId(GetEventInt(event, "userid"));
     float Time = float(GetConVarInt(SpawnProtectionTime));
-    if(Time == float(0.0) || Time < float(0.0)) 
+    if(Time == float(0.0) || Time < float(0.0)) {
+        RemoveProtection(client);
+        LogMessage("%f - is abonded", Time);
         return Plugin_Continue;
+    }
 
     ApplyProtection(client, Time, false)
     return Plugin_Continue;
