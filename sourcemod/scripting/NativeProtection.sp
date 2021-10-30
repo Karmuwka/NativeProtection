@@ -2,55 +2,6 @@
 #include "csgo_colors.inc"
 #pragma tabsize 0
 
-enum ETeam{
-    TeamSpec = 1,
-    TeamT,
-    TeamCT
-}
-
-enum FX
-{
-	FxNone = 0,
-	FxPulseFast,
-	FxPulseSlowWide,
-	FxPulseFastWide,
-	FxFadeSlow,
-	FxFadeFast,
-	FxSolidSlow,
-	FxSolidFast,
-	FxStrobeSlow,
-	FxStrobeFast,
-	FxStrobeFaster,
-	FxFlickerSlow,
-	FxFlickerFast,
-	FxNoDissipation,
-	FxDistort,               // Distort/scale/translate flicker
-	FxHologram,              // kRenderFxDistort + distance fade
-	FxExplode,               // Scale up really big!
-	FxGlowShell,             // Glowing Shell
-	FxClampMinScale,         // Keep this sprite from getting very small (SPRITES only!)
-	FxEnvRain,               // for environmental rendermode, make rain
-	FxEnvSnow,               //  "        "            "    , make snow
-	FxSpotlight,     
-	FxRagdoll,
-	FxPulseFastWider,
-};
-
-enum Render
-{
-	Normal = 0, 		// src
-	TransColor, 		// c*a+dest*(1-a)
-	TransTexture,		// src*a+dest*(1-a)
-	Glow,				// src*a+dest -- No Z buffer checks -- Fixed size in screen space
-	TransAlpha,			// src*srca+dest*(1-srca)
-	TransAdd,			// src*a+dest
-	Environmental,		// not drawn, used for environmental effects
-	TransAddFrameBlend,	// use a fractional frame value to blend between animation frames
-	TransAlphaAdd,		// src + dest*(1-a)
-	WorldGlow,			// Same as kRenderGlow but not fixed size in screen space
-	None,				// Don't render.
-};
-
 Handle SpawnProtectionTime;
 Handle SpawnProtectionNotify;
 Handle SpawnProtectionColor;
@@ -116,7 +67,7 @@ public Plugin:myinfo = {
 public void OnPluginStart(){	
 	SpawnProtectionTime			= CreateConVar("prot_spawn_protection_time", "8", "Время защиты при возрождении / Time of spawn protection");
 	SpawnProtectionNotify		= CreateConVar("prot_notify", "1", "Включить уведомления для игрока / Notify player about protection");
-	SpawnProtectionColor		= CreateConVar("prot_color", "0 255 0 0", "Цвет моделек игрока во воремя защиты / Player`s model color (RGBA)");
+	SpawnProtectionColor		= CreateConVar("prot_color", "0 0 0 0", "Цвет моделек игрока во воремя защиты / Player`s model color (RGBA)");
     SpawnModelColoringTeam      = CreateConVar("prot_after_coloring_team", "1", "Включить окрашивание игроков по командам / Enable team-color");
 	
 	AutoExecConfig(true, "native_protection");
@@ -131,12 +82,15 @@ public Action OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcas
 {
 	int client 	= GetClientOfUserId(GetEventInt(event, "userid"));
     float Time = float(GetConVarInt(SpawnProtectionTime));
-    if(Time == float(0.0) || Time < float(0.0)) return Plugin_Continue;
+    if(Time == float(0.0) || Time < float(0.0)) 
+        return Plugin_Continue;
+
     ApplyProtection(client, Time, false)
     return Plugin_Continue;
 }
 public bool ApplyProtection(client, float time, bool isClientVisible){
-    if(time == float(0.0) || time < float(0.0)) return true;
+    if(time == float(0.0) || time < float(0.0))
+         return true;
     int Team = GetClientTeam(client);
     if(IsPlayerAlive(client) && (Team != TeamSpec) && !g_ClientState[client] && correctPlayer(client))
     {
@@ -151,7 +105,7 @@ public bool ApplyProtection(client, float time, bool isClientVisible){
         g_ClientState[client] = true;
         CreateTimer(time, TimerRemoveProtection, client);
         if(GetConVarInt(SpawnProtectionNotify) > 0)
-            CPrintToChat(client, "{lightgreen}[KNP Protection] %t", "PROTECTION_START", RoundToNearest(time)); 
+            CGOPrintToChat(client, "{LIGHTGREEN}[KNP Protection] %t", "PROTECTION_START", RoundToNearest(time)); 
         g_ClientState[client] = true;
         return true;
     }
@@ -173,7 +127,7 @@ public void RemoveProtection(int client){
         }
         set_rendering(client, FxDistort, Color[0], Color[1], Color[2], RENDER_TRANSADD, Color[3]);
         if(GetConVarInt(SpawnProtectionNotify) > 0)
-            CPrintToChat(client, "{lightgreen}[KNP Protection] %t", "PROTECTION_END");
+            CGOPrintToChat(client, "{LIGHTGREEN}[KNP Protection] %t", "PROTECTION_END");
     }
     g_ClientState[client] = false;
 }
