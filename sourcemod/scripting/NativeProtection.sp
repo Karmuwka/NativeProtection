@@ -7,7 +7,6 @@ Handle SpawnProtectionNotify;
 Handle SpawnProtectionColor;
 Handle SpawnModelColoringTeam;
 
-int RenderOffs;
 int g_ClientState[MAXPLAYERS];
 
 public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] sError, int iErrmax){
@@ -95,14 +94,14 @@ public Action OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcas
         return Plugin_Continue;
     }
 
-    ApplyProtection(client, Time, false)
+    ApplyProtection(client, Time, true);
     return Plugin_Continue;
 }
 public bool ApplyProtection(client, float time, bool isClientVisible){
     if(time == float(0.0) || time < float(0.0))
          return true;
     int Team = GetClientTeam(client);
-    if(IsPlayerAlive(client) && (Team != TeamSpec) && !g_ClientState[client] && correctPlayer(client))
+    if(IsPlayerAlive(client) && (Team != TeamSpec)&& correctPlayer(client))
     {
         char SzColor[32];
         char SetColors[4][4];
@@ -112,11 +111,10 @@ public bool ApplyProtection(client, float time, bool isClientVisible){
             
         SetEntProp(client, Prop_Data, "m_takedamage", 0, 1);
         set_rendering(client, FxDistort, StringToInt(SetColors[0]), StringToInt(SetColors[1]), StringToInt(SetColors[2]), (isClientVisible) ? Normal : None, StringToInt(SetColors[3]));
-        g_ClientState[client] = true;
+ 
         CreateTimer(time, TimerRemoveProtection, client);
         if(GetConVarInt(SpawnProtectionNotify) > 0)
             CGOPrintToChat(client, "{LIGHTGREEN}[KNP Protection] %t", "PROTECTION_START", RoundToNearest(time)); 
-        g_ClientState[client] = true;
         return true;
     }
     return false;
@@ -135,6 +133,7 @@ public void RemoveProtection(int client){
                 }
             }
         }
+        LogMessage("%i - %i, %i, %i", GetClientTeam(client), Color[0], Color[1], Color[2], Color[3]);
         set_rendering(client, FxDistort, Color[0], Color[1], Color[2], RENDER_TRANSADD, Color[3]);
         if(GetConVarInt(SpawnProtectionNotify) > 0)
             CGOPrintToChat(client, "{LIGHTGREEN}[KNP Protection] %t", "PROTECTION_END");
@@ -143,7 +142,7 @@ public void RemoveProtection(int client){
 }
 public Action TimerRemoveProtection(Handle:timer, any:client)
 {
-    if(correctPlayer(client) &&IsPlayerAlive(client) && g_ClientState[client])
+    if(correctPlayer(client) &&IsPlayerAlive(client))
         RemoveProtection(client);
 }
 stock set_rendering(index, FX:fx=FxNone, r=255, g=255, b=255, Render:render=Normal, amount=255)
