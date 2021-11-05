@@ -19,7 +19,7 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] sError, int iErrm
     return APLRes_Success;
 }
 public bool correctPlayer(int client){
-    if(client > 0 && client <= MaxClients && IsClientInGame(client))
+    if(client > 0 && client <= MaxClients && IsClientInGame(client) && !IsFakeClient(client))
         return true;
     return false;
 }
@@ -90,18 +90,17 @@ public Action OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcas
     float Time = float(GetConVarInt(SpawnProtectionTime));
     if(Time == float(0.0) || Time < float(0.0)) {
         RemoveProtection(client);
-        LogMessage("%f - is abonded", Time);
         return Plugin_Continue;
     }
 
     ApplyProtection(client, Time, true);
     return Plugin_Continue;
 }
-public bool ApplyProtection(client, float time, bool isClientVisible){
+public bool ApplyProtection(client, float time, bool isClientVisible){  
     if(time == float(0.0) || time < float(0.0))
          return true;
-    int Team = GetClientTeam(client);
-    if(IsPlayerAlive(client) && (Team != TeamSpec)&& correctPlayer(client))
+         
+    if(IsPlayerAlive(client) && (GetClientTeam(client) != TeamSpec) && correctPlayer(client) && !g_ClientState[client])
     {
         char SzColor[32];
         char SetColors[4][4];
@@ -115,6 +114,8 @@ public bool ApplyProtection(client, float time, bool isClientVisible){
         CreateTimer(time, TimerRemoveProtection, client);
         if(GetConVarInt(SpawnProtectionNotify) > 0)
             CGOPrintToChat(client, "{LIGHTGREEN}[KNP Protection] %t", "PROTECTION_START", RoundToNearest(time)); 
+
+        g_ClientState[client] = true;
         return true;
     }
     return false;
@@ -133,9 +134,8 @@ public void RemoveProtection(int client){
                 }
             }
         }
-        LogMessage("%i - %i, %i, %i", GetClientTeam(client), Color[0], Color[1], Color[2], Color[3]);
         set_rendering(client, FxDistort, Color[0], Color[1], Color[2], RENDER_TRANSADD, Color[3]);
-        if(GetConVarInt(SpawnProtectionNotify) > 0)
+        if(GetConVarInt(SpawnProtectionNotify) > 0 && g_ClientState[client])
             CGOPrintToChat(client, "{LIGHTGREEN}[KNP Protection] %t", "PROTECTION_END");
     }
     g_ClientState[client] = false;

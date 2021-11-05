@@ -3,7 +3,7 @@
     "PROTECTION_START"
     {
         "#format" "{1:i}"
-        "en" "You are protected for {GREEN{1}{DEFAULT} seconds..."
+        "en" "You are protected for {GREEN}{1}{DEFAULT} seconds..."
         "ru" "Вы под защитой на {GREEN}{1}{DEFAULT} секунд..."
     }
     "PROTECTION_END"
